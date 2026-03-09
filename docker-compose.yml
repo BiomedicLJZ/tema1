@@ -1,0 +1,71 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────
+#  QueryForge — PostgreSQL + Python FastAPI backend + HTML UI
+# ─────────────────────────────────────────────────────────────
+
+services:
+
+  # ── 1. Database ───────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: queryforge_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-queryforge}
+      POSTGRES_USER:     ${POSTGRES_USER:-forge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forge_secret}
+    volumes:
+      - db_data:/var/lib/postgresql/data        # persistent storage
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    ports:
+      - "5432:5432"          # expose for psql / DBeaver / etc.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forge} -d ${POSTGRES_DB:-queryforge}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── 2. Backend ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: queryforge_backend
+    restart: unless-stopped
+    environment:
+      DB_HOST:     db
+      DB_PORT:     5432
+      DB_NAME:     ${POSTGRES_DB:-queryforge}
+      DB_USER:     ${POSTGRES_USER:-forge}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-forge_secret}
+    ports:
+      - "8000:8000"          # expose API directly too
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app       # live-reload on code changes
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 3. Frontend ───────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: queryforge_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"            # open http://localhost:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# ── Volumes ───────────────────────────────────────────────
+volumes:
+  db_data:
+    name: queryforge_pgdata  # named so it survives `docker compose down`
