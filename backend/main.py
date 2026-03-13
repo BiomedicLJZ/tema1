@@ -78,7 +78,10 @@ def run_query(req: QueryRequest):
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         try:
-            cur.execute(sql, req.params or [])
+            if req.params:
+                cur.execute(sql, req.params)
+            else:
+                cur.execute(sql.replace('%', '%%'))
 
             elapsed = (datetime.now() - start).total_seconds() * 1000
 
