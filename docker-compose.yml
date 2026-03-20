@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forge_secret}
     volumes:
       - db_data:/var/lib/postgresql/data        # persistent storage
-      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+      - ./db:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"          # expose for psql / DBeaver / etc.
     healthcheck:
