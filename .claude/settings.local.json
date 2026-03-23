@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -type f ! -path './.git/*' -exec ls -lh {})",
+      "Bash(C:UsersBiomedicLJZ.claudepluginscacheclaude-plugins-officialsuperpowers5.0.5skillsbrainstormingscriptsstart-server.sh --project-dir \"D:/Documentos/UNIAT/Clases/BDD2/tema1\")",
+      "Bash(cat D:/Documentos/UNIAT/Clases/BDD2/tema1/.superpowers/brainstorm/*/.server-info)",
+      "Bash(xargs cat:*)",
+      "Bash(bash \"/c/Users/BiomedicLJZ/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh\" --project-dir \"/d/Documentos/UNIAT/Clases/BDD2/tema1\")",
+      "Bash(docker ps:*)"
+    ]
+  }
+}

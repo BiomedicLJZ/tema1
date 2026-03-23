@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QueryForge — Green Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #060809;
+  color: #c8d6e5;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  padding: 36px 28px;
+}
+h1 { font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+.subtitle { font-size: .8rem; color: #2d3a2d; margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; }
+
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.card {
+  border-radius: 10px; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .2s, transform .15s, box-shadow .15s;
+  background: #080b08;
+}
+.card:hover { transform: translateY(-2px); }
+.card.selected { border-color: #fff !important; }
+.card.selected::after {
+  content: '✓'; position: absolute; top: 8px; right: 10px;
+  color: #fff; font-weight: 700; font-size: .75rem;
+  font-family: 'Inter', sans-serif;
+}
+.card { position: relative; }
+
+.preview {
+  height: 200px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+/* shared mini-UI components */
+.mini-editor {
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .5rem;
+  line-height: 1.7;
+  flex-shrink: 0;
+}
+.mini-sidebar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 72px;
+  border-right-width: 1px; border-right-style: solid;
+  padding: 10px 0;
+}
+.mini-sitem {
+  padding: 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .46rem;
+}
+.mini-main {
+  position: absolute; left: 72px; right: 0; top: 0; bottom: 0;
+  padding: 10px 9px;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.mini-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .48rem; font-weight: 700;
+  padding: 3px 9px; border-radius: 3px;
+  display: inline-block;
+}
+.mini-table { border-radius: 3px; overflow: hidden; border-width: 1px; border-style: solid; }
+.mini-th { font-family: 'JetBrains Mono', monospace; font-size: .42rem; padding: 3px 6px; }
+.mini-td { font-family: 'JetBrains Mono', monospace; font-size: .42rem; padding: 3px 6px; }
+.mini-row { display: flex; }
+
+.label-area { padding: 11px 13px; }
+.label-area h3 { font-size: .88rem; font-weight: 600; margin-bottom: 3px; }
+.label-area p  { font-size: .68rem; opacity: .55; line-height: 1.4; }
+
+/* ── A: Phosphor Green (classic CRT) */
+.phosphor .preview { background: #020403; }
+.phosphor .mini-sidebar { background: #020503; border-color: #081208; }
+.phosphor .mini-sitem { color: #0d2a0d; }
+.phosphor .mini-sitem.hi { color: #00cc44; text-shadow: 0 0 6px rgba(0,204,68,.5); }
+.phosphor .mini-editor { background: #010302; border: 1px solid #061006; color: #00cc44; text-shadow: 0 0 5px rgba(0,204,68,.35); }
+.phosphor .mini-btn { background: #00cc44; color: #000; }
+.phosphor .mini-table { border-color: #061006; background: #010302; }
+.phosphor .mini-th { background: #020604; color: #083008; }
+.phosphor .mini-td { color: #00cc44; }
+.phosphor .label-area { background: #020403; }
+.phosphor .label-area h3 { color: #00cc44; }
+.phosphor-swatch { width: 12px; height: 12px; border-radius: 50%; background: #00cc44; box-shadow: 0 0 8px #00cc44; display: inline-block; margin-right: 6px; }
+
+/* ── B: Neon Lime (electric) */
+.neon .preview { background: #040604; }
+.neon .mini-sidebar { background: #030503; border-color: #0a180a; }
+.neon .mini-sitem { color: #112011; }
+.neon .mini-sitem.hi { color: #39ff6a; text-shadow: 0 0 10px rgba(57,255,106,.6); }
+.neon .mini-editor { background: #020402; border: 1px solid #091409; color: #39ff6a; text-shadow: 0 0 8px rgba(57,255,106,.4); }
+.neon .mini-btn { background: #39ff6a; color: #000; }
+.neon .mini-table { border-color: #091409; background: #020402; }
+.neon .mini-th { background: #030603; color: #102010; }
+.neon .mini-td { color: #39ff6a; }
+.neon .label-area { background: #040604; }
+.neon .label-area h3 { color: #39ff6a; }
+
+/* ── C: Toxic Acid (yellow-green) */
+.acid .preview { background: #040500; }
+.acid .mini-sidebar { background: #030400; border-color: #0c1400; }
+.acid .mini-sitem { color: #1a2200; }
+.acid .mini-sitem.hi { color: #b8ff00; text-shadow: 0 0 8px rgba(184,255,0,.5); }
+.acid .mini-editor { background: #020300; border: 1px solid #081000; color: #b8ff00; text-shadow: 0 0 6px rgba(184,255,0,.3); }
+.acid .mini-btn { background: #b8ff00; color: #000; }
+.acid .mini-table { border-color: #081000; background: #020300; }
+.acid .mini-th { background: #030400; color: #1a2200; }
+.acid .mini-td { color: #b8ff00; }
+.acid .label-area { background: #040500; }
+.acid .label-area h3 { color: #b8ff00; }
+
+/* ── D: Sage + Amber (muted, warmer) */
+.sage .preview { background: #060605; }
+.sage .mini-sidebar { background: #050504; border-color: #111008; }
+.sage .mini-sitem { color: #22201a; }
+.sage .mini-sitem.hi { color: #7aff8a; }
+.sage .mini-editor { background: #030302; border: 1px solid #0e0d08; color: #7aff8a; }
+.sage .mini-editor .amber { color: #ffaa33; }
+.sage .mini-btn { background: #7aff8a; color: #000; }
+.sage .mini-table { border-color: #0e0d08; background: #030302; }
+.sage .mini-th { background: #050504; color: #22201a; }
+.sage .mini-td { color: #7aff8a; }
+.sage .mini-td.num { color: #ffaa33; }
+.sage .label-area { background: #060605; }
+.sage .label-area h3 { color: #7aff8a; }
+
+.hint { text-align: center; font-size: .72rem; color: #1a2a1a; font-family: 'JetBrains Mono', monospace; margin-top: 20px; }
+
+.indicator { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,.93); color:#000; padding:7px 18px; border-radius:20px;
+  font-size:.72rem; font-weight:600; font-family:'Inter',sans-serif; z-index:100;
+  box-shadow:0 4px 20px rgba(0,0,0,.5); }
+.indicator.visible { display:block; }
+</style>
+</head>
+<body>
+
+<h1>Terminal Noir — pick your green</h1>
+<p class="subtitle">// the accent color defines the whole personality</p>
+
+<div class="grid">
+
+  <!-- A: Phosphor -->
+  <div class="card phosphor" data-choice="phosphor" onclick="pick(this)">
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-sitem">public</div>
+        <div class="mini-sitem hi">players</div>
+        <div class="mini-sitem">spells</div>
+        <div class="mini-sitem" style="margin-top:6px">dw</div>
+        <div class="mini-sitem">dim_pl</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-editor">SELECT *<br>FROM "players"<br>LIMIT 50;</div>
+        <span class="mini-btn">▶ RUN</span>
+        <div class="mini-table">
+          <div class="mini-row"><div class="mini-th" style="flex:1">id</div><div class="mini-th" style="flex:2">username</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">1</div><div class="mini-td" style="flex:2">shadowblade</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">2</div><div class="mini-td" style="flex:2">frostmage</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="label-area">
+      <h3><span class="phosphor-swatch"></span>A — Phosphor</h3>
+      <p>#00cc44 · Classic CRT green. Cool, clinical, authentic retro terminal.</p>
+    </div>
+  </div>
+
+  <!-- B: Neon Lime -->
+  <div class="card neon" data-choice="neon" onclick="pick(this)">
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-sitem">public</div>
+        <div class="mini-sitem hi">players</div>
+        <div class="mini-sitem">spells</div>
+        <div class="mini-sitem" style="margin-top:6px">dw</div>
+        <div class="mini-sitem">dim_pl</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-editor">SELECT *<br>FROM "players"<br>LIMIT 50;</div>
+        <span class="mini-btn">▶ RUN</span>
+        <div class="mini-table">
+          <div class="mini-row"><div class="mini-th" style="flex:1">id</div><div class="mini-th" style="flex:2">username</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">1</div><div class="mini-td" style="flex:2">shadowblade</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">2</div><div class="mini-td" style="flex:2">frostmage</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="label-area">
+      <h3 style="color:#39ff6a">B — Neon Lime</h3>
+      <p>#39ff6a · Electric, high-energy glow. Pure neon sign energy.</p>
+    </div>
+  </div>
+
+  <!-- C: Acid -->
+  <div class="card acid" data-choice="acid" onclick="pick(this)">
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-sitem">public</div>
+        <div class="mini-sitem hi">players</div>
+        <div class="mini-sitem">spells</div>
+        <div class="mini-sitem" style="margin-top:6px">dw</div>
+        <div class="mini-sitem">dim_pl</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-editor">SELECT *<br>FROM "players"<br>LIMIT 50;</div>
+        <span class="mini-btn">▶ RUN</span>
+        <div class="mini-table">
+          <div class="mini-row"><div class="mini-th" style="flex:1">id</div><div class="mini-th" style="flex:2">username</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">1</div><div class="mini-td" style="flex:2">shadowblade</div></div>
+          <div class="mini-row"><div class="mini-td" style="flex:1">2</div><div class="mini-td" style="flex:2">frostmage</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="label-area">
+      <h3 style="color:#b8ff00">C — Toxic Acid</h3>
+      <p>#b8ff00 · Yellow-green, aggressive. Cyberpunk edge, danger sign energy.</p>
+    </div>
+  </div>
+
+  <!-- D: Sage + Amber -->
+  <div class="card sage" data-choice="sage" onclick="pick(this)">
+    <div class="preview">
+      <div class="mini-sidebar">
+        <div class="mini-sitem">public</div>
+        <div class="mini-sitem hi">players</div>
+        <div class="mini-sitem">spells</div>
+        <div class="mini-sitem" style="margin-top:6px">dw</div>
+        <div class="mini-sitem">dim_pl</div>
+      </div>
+      <div class="mini-main">
+        <div class="mini-editor">SELECT <span class="amber">*</span><br>FROM "players"<br>LIMIT 50;</div>
+        <span class="mini-btn">▶ RUN</span>
+        <div class="mini-table">
+          <div class="mini-row"><div class="mini-th" style="flex:1">id</div><div class="mini-th" style="flex:2">username</div></div>
+          <div class="mini-row"><div class="mini-td num" style="flex:1">1</div><div class="mini-td" style="flex:2">shadowblade</div></div>
+          <div class="mini-row"><div class="mini-td num" style="flex:1">2</div><div class="mini-td" style="flex:2">frostmage</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="label-area">
+      <h3 style="color:#7aff8a">D — Sage + Amber</h3>
+      <p>#7aff8a + #ffaa33 · Softer green with amber for numbers. Easier on the eyes, still dark.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="hint">// all on identical pure-black backgrounds — only the green changes</p>
+
+<div class="indicator" id="ind"></div>
+<script src="/helper.js"></script>
+<script>
+const names = { phosphor:'A — Phosphor (#00cc44)', neon:'B — Neon Lime (#39ff6a)', acid:'C — Toxic Acid (#b8ff00)', sage:'D — Sage + Amber (#7aff8a)' };
+function pick(card) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  const ind = document.getElementById('ind');
+  ind.textContent = '✓ ' + names[card.dataset.choice];
+  ind.classList.add('visible');
+  if (window.__qf_select) window.__qf_select(card.dataset.choice, names[card.dataset.choice]);
+}
+</script>
+</body>
+</html>
