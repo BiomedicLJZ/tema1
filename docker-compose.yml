@@ -21,10 +21,15 @@ services:
     ports:
       - "5432:5432"          # expose for psql / DBeaver / etc.
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forge} -d ${POSTGRES_DB:-queryforge}"]
+      # -h localhost forces a TCP check (not Unix socket).
+      # During init-script phase the temp server only listens on Unix,
+      # so this check stays UNHEALTHY until the real server is up
+      # and ALL init SQL files (including the 1.35M-row guerra schema) have finished.
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER:-forge} -d ${POSTGRES_DB:-queryforge}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 30
+      start_period: 60s
 
   # ── 2. Backend ────────────────────────────────────────────
   backend:

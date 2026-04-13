@@ -62,6 +62,7 @@ SCHEMA_SOURCE_MAP = {
     "public": "seed.sql",
     "dw": "02_dw.sql",
     "forja": "03_forjaImperial.sql",
+    "guerra": "04_indices.sql",
 }
 
 # System schemas to exclude from listings
@@ -96,7 +97,7 @@ def run_query(req: QueryRequest):
 
             elapsed = (datetime.now() - start).total_seconds() * 1000
 
-            if query_type == "SELECT" or query_type == "WITH":
+            if query_type in ("SELECT", "WITH", "EXPLAIN", "TABLE", "SHOW"):
                 raw_rows = cur.fetchall()
                 columns = list(raw_rows[0].keys()) if raw_rows else (
                     [desc[0] for desc in cur.description] if cur.description else []
