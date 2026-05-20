@@ -12,10 +12,10 @@ A self-contained SQL workbench: PostgreSQL + FastAPI backend + browser UI — al
 
 ## Quick Start
 
- 1. Build & start everything
+1. Build & start everything
 * docker compose up --build
 
-# 3. Open the UI
+2. Open the UI
 * open [http://localhost:3000](http://localhost:3000)
 
 
