@@ -12,13 +12,12 @@ A self-contained SQL workbench: PostgreSQL + FastAPI backend + browser UI — al
 
 ## Quick Start
 
-```bash
-# 1. Build & start everything
-docker compose up --build
+ 1. Build & start everything
+* docker compose up --build
 
 # 3. Open the UI
-open [http://localhost:3000](http://localhost:3000)
-```
+* open [http://localhost:3000](http://localhost:3000)
+
 
 The DB is pre-seeded with `spells` and `casters` tables — great for learning!
 
